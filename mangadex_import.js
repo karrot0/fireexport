@@ -4,6 +4,10 @@ const fs = require('fs').promises;
 const { join } = require('path');
 const xml2js = require('xml2js');
 
+const APP_NAME = 'Fire-Export/Import';
+const APP_VERSION = '1.0.0';
+const USER_AGENT = `${APP_NAME} ${APP_VERSION}`;
+
 // Logger configuration
 const logger = {
     info: (msg) => console.log('🔥', '\x1b[36m', msg, '\x1b[0m'),
@@ -32,7 +36,8 @@ async function updateMangaStatus(mangaId, status, accessToken) {
             url: `https://api.mangadex.org/manga/${mangaId}/status`,
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${accessToken}`,
+                'User-Agent': USER_AGENT
             },
             data: {
                 status: status
@@ -58,6 +63,7 @@ async function findManga(mangaTitle, targetStatus, accessToken) {
         headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
+            'User-Agent': USER_AGENT
         },
     });
 
@@ -241,7 +247,8 @@ async function main() {
             method: 'POST',
             url: `https://auth.mangadex.org/realms/mangadex/protocol/openid-connect/token`,
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Agent': USER_AGENT
             },
             data: new URLSearchParams(creds).toString()
         });
@@ -274,13 +281,13 @@ async function main() {
         logger.warning('Test will clean up manga statuses in 2 minutes...');
 
         // Set cleanup timeout
-        setTimeout(async () => {
-            try {
-                await cleanupMangaStatuses(processedManga, accessToken);
-            } catch (error) {
-                logger.error('Error during cleanup:', error.message);
-            }
-        }, 2 * 60 * 1000); // 2 minutes
+        // setTimeout(async () => {
+        //     try {
+        //         await cleanupMangaStatuses(processedManga, accessToken);
+        //     } catch (error) {
+        //         logger.error('Error during cleanup:', error.message);
+        //     }
+        // }, 2 * 60 * 1000); // 2 minutes
 
     } catch (error) {
         logger.error('Error:', error.message);
